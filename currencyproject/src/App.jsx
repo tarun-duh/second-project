@@ -1,105 +1,82 @@
-import { useState } from "react";
-
+import { useState, useId } from "react";
+import InputBox from "./assets/components/InputBox";
+import useCurrencyInfo from "./hooks/useCurrencyInfo";
 import "./App.css";
 
 function App() {
-  let [result, setResult] = useState(0);
-  let [from, setFrom] = useState("usd");
-  let [to, setTo] = useState("inr");
-  //function for exchange rate  fromselcteditem = fromselecteditem/toselecteditem
-  let allData;
+  const [amount, setAmount] = useState(0);
+  const [from, setFrom] = useState("usd");
+  const [to, setTo] = useState("inr");
+  const [ConvertedAmount, setConvertedAmount] = useState(0);
 
-  fetch(
-    `https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/usd.json`
-  )
-    .then((data) => data.json())
-    .then((data) => {
-      allData = data.usd;
-      console.log(allData); // Move the console.log inside this block
-    })
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-    });
+  const CurrencyInfo = useCurrencyInfo(from);
+  const options = Object.keys(CurrencyInfo);
+
+  function swap() {
+    setFrom(to);
+    setTo(from);
+    setConvertedAmount(amount);
+    setAmount(ConvertedAmount);
+  }
 
   function Convert() {
-    let amt = document.getElementById("amt");
-    console.log(amt.value);
+    setConvertedAmount(amount * CurrencyInfo[to]);
   }
 
   return (
-    <>
-      <div
-        style={{
-          backgroundImage: 'url("../public/currency.jpg")',
-        }}
-        className="mainDiv h-screen w-screen bg-center bg-cover  flex flex-col justify-center items-center"
-      >
-        <div
-          style={{ backgroundColor: "rgba(255, 255, 255, 0.8)" }}
-          className="w-2/3 h-2/5 p-3 rounded-lg overflow-hidden "
-        >
-          <h1 className="text-3xl font-bold underline text-blue-500 text-center">
-            Currency project
-          </h1>
-          <div className="flex h-auto">
-            <div className=" w-1/3 h-1/3  flex flex-col p-3 justify-center my-4">
-              <h3 className="text-xl my-2">Amount</h3>
-              <input
-                className="h-12 cursor-pointer border-2 rounded-md p-1 border-blue-500 "
-                type="text"
-                name=""
-                id="amt"
-                placeholder="$5.00"
+    <div
+      className="w-full h-screen flex flex-wrap justify-center items-center bg-cover bg-no-repeat"
+      style={{
+        backgroundImage: 'url("../public/currency.jpg")',
+      }}
+    >
+      <div className="w-full">
+        <div className="w-full max-w-md mx-auto border border-gray-60 rounded-lg p-5 backdrop-blur-sm bg-white/30">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              Convert();
+            }}
+          >
+            <div className="w-full mb-1">
+              <InputBox
+                label="From"
+                amount={amount}
+                currencyOptions={options}
+                onCurrencyChange={(currency) => setFrom(currency)}
+                selectCurrency={from}
+                onAmountChange={(amount) => setAmount(amount)}
               />
             </div>
-            <div className="w-1/3 h-1/3  flex flex-col p-3 justify-center my-4">
-              <h3 className="text-xl my-2">From</h3>
-              <input
-                className="h-12 cursor-pointer border-2 rounded-md p-1 border-blue-500 "
-                type="text"
-                name=""
-                id=""
-                placeholder="search"
-              />
-              <div
-                id="hidden1"
-                className="hide max-h-40 overflow-y-auto border p-4 shadow-2xl"
-              ></div>
-            </div>
-            <div className="w-1/3 h-1/3  flex flex-col p-3 justify-center my-4">
-              <h3 className="text-xl my-2">To</h3>
-              <input
-                className="h-12 cursor-pointer border-2 rounded-md p-1 border-blue-500 "
-                type="text"
-                name=""
-                id=""
-                placeholder="search"
-              />
-              <div
-                id="hidden2"
-                className="hide max-h-40 overflow-y-auto border p-4 shadow-2xl"
-              ></div>
-            </div>
-          </div>
-          <div className="flex p-3 justify-between h-auto w-full ">
-            <div className="flex justify-center items-center">
-              <h2>Result : {result}</h2>
-            </div>
-            <div>
-              <button className="bg-blue-600 text-white h-12 w-32 rounded-md shadow-xl mx-3">
-                Swap
-              </button>
+            <div className="relative w-full h-0.5">
               <button
-                onClick={Convert}
-                className="bg-blue-600 h-12 w-32 text-white rounded-md shadow-xl"
+                onClick={swap}
+                type="button"
+                className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 border-white rounded-md bg-blue-600 text-white px-3 py-1"
               >
-                Convert
+                swap
               </button>
             </div>
-          </div>
+            <div className="w-full mt-1 mb-4">
+              <InputBox
+                label="To"
+                amount={ConvertedAmount}
+                currencyOptions={options}
+                onCurrencyChange={(currency) => setTo(currency)}
+                selectCurrency={to}
+                amountDisable
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg"
+            >
+              Convert {from.toUpperCase()} to {to.toUpperCase()}
+            </button>
+          </form>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
