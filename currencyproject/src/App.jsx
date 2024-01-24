@@ -5,15 +5,16 @@ import "./App.css";
 function App() {
   let [result, setResult] = useState(0);
   let [from, setFrom] = useState("usd");
-
+  let [to, setTo] = useState("inr");
+  //function for exchange rate  fromselcteditem = fromselecteditem/toselecteditem
   let allData;
 
   fetch(
-    `https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/${from}.json`
+    `https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/usd.json`
   )
     .then((data) => data.json())
     .then((data) => {
-      allData = data;
+      allData = data.usd;
       console.log(allData); // Move the console.log inside this block
     })
     .catch((error) => {
